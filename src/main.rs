@@ -7,11 +7,6 @@ use rocket::response::NamedFile;
 
 use std::path::{Path, PathBuf};
 
-#[get("/<file..>", rank=1)]
-fn files(file: PathBuf) -> Option<NamedFile> {
-    NamedFile::open(Path::new("webapp/dist/static").join(file)).ok()
-}
-
 #[get("/", rank=2)]
 fn other() -> &'static str {
     "Other"
@@ -28,21 +23,21 @@ fn index() -> Option<NamedFile> {
     NamedFile::open(Path::new("webapp/dist/index.html")).ok()
 }
 
-#[get("/favicon.ico", rank=3)]
-fn favicon() -> Option<NamedFile> {
-    NamedFile::open(Path::new("webapp/dist/favicon.ico")).ok()
-}
-
-#[get("/<_page..>", rank=4)]
-fn index_extra(_page: PathBuf) -> Option<NamedFile> {
-    NamedFile::open(Path::new("webapp/dist/index.html")).ok()
+#[get("/<file..>", rank=4)]
+fn index_extra(file: PathBuf) -> Option<NamedFile> {
+    let file = NamedFile::open(Path::new("webapp/dist/").join(file));
+    
+    if let Some(file) = file.ok() {
+        Some(file)
+    } else {
+        NamedFile::open(Path::new("webapp/dist/index.html")).ok()
+    }
 }
 
 
 fn main() {
     rocket::ignite()
-        .mount("/static", routes![files])
         .mount("/api", routes![other, other_other])
-        .mount("/", routes![index, favicon, index_extra])
+        .mount("/", routes![index, index_extra])
         .launch();
 }
