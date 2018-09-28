@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 
 #[get("/<file..>", rank=1)]
 fn files(file: PathBuf) -> Option<NamedFile> {
-    NamedFile::open(Path::new("static/").join(file)).ok()
+    NamedFile::open(Path::new("webapp/dist/static").join(file)).ok()
 }
 
 #[get("/", rank=2)]
@@ -24,13 +24,13 @@ fn other_other(page: PathBuf) -> String {
 }
 
 #[get("/", rank=3)]
-fn index() -> &'static str {
-    "Hello, world!"
+fn index() -> Option<NamedFile> {
+    NamedFile::open(Path::new("webapp/dist/index.html")).ok()
 }
 
-#[get("/<page..>", rank=4)]
-fn index_extra(page: PathBuf) -> &'static str {
-    "Hello, world!"
+#[get("/<_page..>", rank=4)]
+fn index_extra(_page: PathBuf) -> Option<NamedFile> {
+    NamedFile::open(Path::new("webapp/dist/index.html")).ok()
 }
 
 
