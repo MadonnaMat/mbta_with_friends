@@ -28,6 +28,11 @@ fn index() -> Option<NamedFile> {
     NamedFile::open(Path::new("webapp/dist/index.html")).ok()
 }
 
+#[get("/favicon.ico", rank=3)]
+fn favicon() -> Option<NamedFile> {
+    NamedFile::open(Path::new("webapp/dist/favicon.ico")).ok()
+}
+
 #[get("/<_page..>", rank=4)]
 fn index_extra(_page: PathBuf) -> Option<NamedFile> {
     NamedFile::open(Path::new("webapp/dist/index.html")).ok()
@@ -38,6 +43,6 @@ fn main() {
     rocket::ignite()
         .mount("/static", routes![files])
         .mount("/api", routes![other, other_other])
-        .mount("/", routes![index, index_extra])
+        .mount("/", routes![index, favicon, index_extra])
         .launch();
 }
