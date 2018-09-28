@@ -7,6 +7,8 @@ use rocket::response::NamedFile;
 
 use std::path::{Path, PathBuf};
 
+const WEBAPP : &'static str = "mbta-with-friends/dist";
+
 #[get("/", rank=2)]
 fn other() -> &'static str {
     "Other"
@@ -20,17 +22,21 @@ fn other_other(page: PathBuf) -> String {
 
 #[get("/", rank=3)]
 fn index() -> Option<NamedFile> {
-    NamedFile::open(Path::new("webapp/dist/index.html")).ok()
+    let index = format!("{}/index.html", WEBAPP);
+
+    NamedFile::open(Path::new(&index)).ok()
 }
 
 #[get("/<file..>", rank=4)]
 fn index_extra(file: PathBuf) -> Option<NamedFile> {
-    let file = NamedFile::open(Path::new("webapp/dist/").join(file));
+    let file = NamedFile::open(Path::new(WEBAPP).join(file));
     
     if let Some(file) = file.ok() {
         Some(file)
     } else {
-        NamedFile::open(Path::new("webapp/dist/index.html")).ok()
+        let index = format!("{}/index.html", WEBAPP);
+
+        NamedFile::open(Path::new(&index)).ok()
     }
 }
 
