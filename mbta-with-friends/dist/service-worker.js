@@ -11,10 +11,10 @@
  * See https://goo.gl/2aRDsh
  */
 
-importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.1/workbox-sw.js");
+importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.2/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.ba4e7544b84b7a05826e8c731d3636da.js"
+  "/precache-manifest.326d3eee9393a8e8104f524179612538.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "mbta-with-friends"});

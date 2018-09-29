@@ -1,9 +1,20 @@
-#![feature(plugin)]
+#![feature(plugin, decl_macro, custom_derive)]
 #![plugin(rocket_codegen)]
-
 extern crate dotenv;
 extern crate rocket;
 extern crate r2d2;
+extern crate serde;
+
+#[macro_use]
+extern crate serde_derive;
+
+#[macro_use]
+extern crate diesel;
+
+pub mod pg_pool;
+pub mod models;
+pub mod schema;
+pub mod controllers;
 
 use rocket::response::NamedFile;
 
@@ -11,21 +22,7 @@ use dotenv::dotenv;
 use std::env;
 use std::path::{Path, PathBuf};
 
-mod pg_pool;
-pub use self::pg_pool::DbConn;
-
 const WEBAPP : &'static str = "mbta-with-friends/dist";
-
-#[get("/", rank=2)]
-fn other() -> &'static str {
-    "Other"
-}
-
-#[get("/<page..>", rank=2)]
-fn other_other(page: PathBuf) -> String {
-    let page = page.to_str().unwrap_or("").to_string();
-    format!("Hello from {}!", page)
-}
 
 #[get("/", rank=3)]
 fn index() -> Option<NamedFile> {
@@ -47,6 +44,12 @@ fn index_extra(file: PathBuf) -> Option<NamedFile> {
     }
 }
 
+fn user_routes() -> Vec<rocket::Route> {
+    routes![
+        controllers::users::all,
+        controllers::users::new_user,
+    ]
+}
 
 fn main() {
     dotenv().ok();
@@ -55,7 +58,7 @@ fn main() {
 
     rocket::ignite()
         .manage(pg_pool::init(&database_url))
-        .mount("/api", routes![other, other_other])
+        .mount("/api", user_routes())
         .mount("/", routes![index, index_extra])
         .launch();
 }
