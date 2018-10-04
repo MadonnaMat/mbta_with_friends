@@ -4,6 +4,7 @@ extern crate dotenv;
 extern crate rocket;
 extern crate r2d2;
 extern crate serde;
+extern crate time;
 
 #[macro_use]
 extern crate serde_derive;
@@ -16,11 +17,26 @@ pub mod models;
 pub mod schema;
 pub mod controllers;
 
+use rocket::request::Request;
+use rocket::response;
 use rocket::response::NamedFile;
+use rocket::response::Responder;
+use rocket::response::Response;
 
 use dotenv::dotenv;
 use std::env;
 use std::path::{Path, PathBuf};
+
+pub struct NoCache(NamedFile);
+
+impl<'r> Responder<'r> for NoCache {
+    fn respond_to(self, req: &Request) -> response::Result<'r> {
+        Response::build_from(self.0.respond_to(req)?)
+            .raw_header("Cache-control", "no-cache")
+            .ok()
+    }
+}
+
 
 const WEBAPP : &'static str = "mbta-with-friends/dist";
 
@@ -29,6 +45,13 @@ fn index() -> Option<NamedFile> {
     let index = format!("{}/index.html", WEBAPP);
 
     NamedFile::open(Path::new(&index)).ok()
+}
+
+#[get("/service-worker.js", rank=3)]
+fn service_worker() -> Option<NoCache> {
+    let index = format!("{}/service-worker.js", WEBAPP);
+
+    NamedFile::open(Path::new(&index)).ok().map(|mf| NoCache(mf) )
 }
 
 #[get("/<file..>", rank=4)]
@@ -44,10 +67,11 @@ fn index_extra(file: PathBuf) -> Option<NamedFile> {
     }
 }
 
-fn user_routes() -> Vec<rocket::Route> {
+fn routes() -> Vec<rocket::Route> {
     routes![
         controllers::users::all,
         controllers::users::new_user,
+        controllers::session::new_session,
     ]
 }
 
@@ -58,7 +82,7 @@ fn main() {
 
     rocket::ignite()
         .manage(pg_pool::init(&database_url))
-        .mount("/api", user_routes())
-        .mount("/", routes![index, index_extra])
+        .mount("/api", routes())
+        .mount("/", routes![index, service_worker, index_extra])
         .launch();
 }

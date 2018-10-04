@@ -1,3 +1,7 @@
+extern crate bcrypt;
+
+use bcrypt::{DEFAULT_COST, hash};
+
 use crate::pg_pool::DbConn;
 use crate::models::user::*;
 use crate::schema::users::dsl::*;
@@ -18,20 +22,26 @@ pub fn all(conn: DbConn) -> Result<Json<Vec<User>>, NotFound<String>> {
 }
 
 #[post("/users", format="application/json", data="<new_user>")]
-pub fn new_user(conn: DbConn, new_user: Json<NewUserJson>) -> Result<Json<User>, NotFound<String>> {
+pub fn new_user(conn: DbConn, new_user: Json<FormUserJson>) -> Result<Json<User>, NotFound<String>> {
     let Json(new_user) = new_user;
 
-    let new_user = NewUser {
-        username: &new_user.username[..],
-        password: &new_user.password[..],
-    };
+    let encrypted = hash(&new_user.password[..], DEFAULT_COST);
 
-    let usr = diesel::insert_into(users)
-        .values(&new_user)
-        .get_result(&*conn);
+    if let Ok(encrypted) = encrypted {
+        let new_user = NewUser {
+            username: &new_user.username[..],
+            password: &encrypted[..],
+        };
 
-    match usr {
-        Ok(usr) => Ok(Json(usr)),
-        Err(e) => Err(NotFound(format!("{}", e)))
+        let usr = diesel::insert_into(users)
+            .values(&new_user)
+            .get_result(&*conn);
+
+        match usr {
+            Ok(usr) => Ok(Json(usr)),
+            Err(e) => Err(NotFound(format!("{}", e)))
+        }
+    } else {
+        Err(NotFound("Unknown Error!".to_string()))
     }
-}
+}   

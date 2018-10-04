@@ -1,27 +1,13 @@
 <template>
   <div>
-    <div>
-      <md-card md-with-hover v-for="user in users">
-        <md-ripple>
-          <md-card-header>
-            <div class="md-title">
-              {{ user.username }}
-            </div>
-          </md-card-header>
-
-          <md-card-content>
-            <p>Id: {{ user.id }}</p>
-            <p>Password: {{ user.password }}</p>
-          </md-card-content>
-        </md-ripple>
-      </md-card>
+    <div v-if="user">
+      {{ user.username }}
     </div>
-
     <form novalidate class="md-layout" v-on:submit.prevent="onSubmit">
       <md-card class="md-layout-item md-size-50 md-small-size-100">
         <md-card-header>
           <div class="md-title">
-            New User
+            Log In
           </div>
         </md-card-header>
 
@@ -45,7 +31,7 @@
 
             <md-card-actions>
               <md-button type="submit" class="md-primary" :disabled="sending">
-                Create User
+                Log In
               </md-button>
             </md-card-actions>
 
@@ -64,24 +50,22 @@ import {AxiosResponse} from 'axios';
 import {State, Action} from 'vuex-class';
 
 @Component
-export default class HelloWorld extends Vue {
-  @Prop() private msg!: string;
-  @State('users') users: any;
-  @Action('listUsers') listUsers: any;
+export default class LoginUser extends Vue {
+  @State('user') user: any;
 
   private sending: boolean = false;
   private form: NUser = {username: '', password: ''};
 
-  private mounted(): void {
-    this.listUsers();
-  }
-
   private onSubmit(): void {
     this.axios
-      .post<IUser>('/api/users', this.form)
+      .post<IUser>('/api/session', this.form)
       .then((response: AxiosResponse<IUser>) => {
-        this.listUsers();
-        (this as any).$snotify.success('User Created!');
+        let newUser: User = response.data;
+        console.log(response);
+
+        this.user = newUser;
+
+        (this as any).$snotify.success('Logged In!');
       })
       .catch(error => {
         if (error.response && error.response.data) {

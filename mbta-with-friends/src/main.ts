@@ -8,7 +8,7 @@ import 'vue-material/dist/theme/default.css';
 
 import App from './App.vue';
 import router from './router';
-import store from './store';
+import store from './stores';
 import './registerServiceWorker';
 
 Vue.use(VueMaterial);

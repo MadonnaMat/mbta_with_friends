@@ -15,7 +15,7 @@ pub struct NewUser<'a>{
 }
 
 #[derive(Deserialize)]
-pub struct NewUserJson {
+pub struct FormUserJson {
     pub username: String,
     pub password: String,
 }
