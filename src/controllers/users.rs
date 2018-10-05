@@ -7,20 +7,18 @@ use crate::models::user::*;
 use crate::schema::users::dsl::*;
 
 use rocket::response::status::{NotFound, Custom};
-use rocket::http::{Cookies, Cookie};
+use rocket::http::{Cookies};
 use rocket::http::Status;
 use rocket_contrib::Json;
 
 use diesel::RunQueryDsl;
 
-use time::Duration;
-
 #[get("/users", rank=1)]
-pub fn all(conn: DbConn, loggedIn: User) -> Result<Json<Vec<JsonUser>>, NotFound<String>> {
+pub fn all(conn: DbConn, _current_user: User) -> Result<Json<Vec<JsonUser>>, NotFound<String>> {
     let usrs = users.load::<User>(&*conn);
 
     match usrs {
-        Ok(usrs) => Ok(Json(usrs.iter().map(|usr| usr.toJsonUser() ).collect())),
+        Ok(usrs) => Ok(Json(usrs.iter().map(|usr| usr.to_json_user() ).collect())),
         Err(e) => Err(NotFound(format!("{}", e)))
     }
 }
@@ -31,7 +29,7 @@ pub fn all_bad() -> Result<(), Custom<String>> {
 }
 
 #[post("/users", format="application/json", data="<new_user>")]
-pub fn new_user(conn: DbConn, new_user: Json<FormUserJson>, mut cookies: Cookies) -> Result<Json<JsonUser>, NotFound<String>> {
+pub fn new_user(conn: DbConn, new_user: Json<FormUserJson>, cookies: Cookies) -> Result<Json<JsonUser>, NotFound<String>> {
     let Json(new_user) = new_user;
 
     let encrypted = hash(&new_user.password[..], DEFAULT_COST);
@@ -48,13 +46,9 @@ pub fn new_user(conn: DbConn, new_user: Json<FormUserJson>, mut cookies: Cookies
 
         match usr {
             Ok(usr) => {
-                let mut c = Cookie::new("user_id", format!("{}", usr.id));
+                usr.set_user_cookie(cookies);
 
-                c.set_max_age(Duration::weeks(4));
-
-                cookies.add_private(c);
-
-                Ok(Json(usr.toJsonUser()))
+                Ok(Json(usr.to_json_user()))
             },
             Err(e) => Err(NotFound(format!("{}", e)))
         }

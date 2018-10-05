@@ -1,3 +1,4 @@
+#![allow(proc_macro_derive_resolution_fallback)]  //Remove when Diesel gets it Tish together
 #![feature(plugin, decl_macro, custom_derive)]
 #![plugin(rocket_codegen)]
 extern crate dotenv;

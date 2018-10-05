@@ -1,13 +1,15 @@
 use rocket::request;
 use rocket::request::FromRequest;
-use rocket::http::Status;
-use rocket::{Outcome, Request, State};
+use rocket::{Outcome, Request};
 
 use crate::schema::users;
 use crate::schema::users::dsl::*;
 use diesel::QueryDsl;
 use diesel::RunQueryDsl;
-use crate::pg_pool::Pool;
+use crate::pg_pool::DbConn;
+use rocket::http::{Cookies, Cookie};
+
+use time::Duration;
 
 #[derive(Queryable, Serialize)]
 pub struct User {
@@ -36,11 +38,19 @@ pub struct FormUserJson {
 }
 
 impl User {
-    pub fn toJsonUser(&self) -> JsonUser {
+    pub fn to_json_user(&self) -> JsonUser {
         JsonUser {
             id: self.id,
             username: String::from(&self.username[..])
         }
+    }
+
+    pub fn set_user_cookie(&self, mut cookies: Cookies) {
+        let mut c = Cookie::new("user_id", format!("{}", self.id));
+
+        c.set_max_age(Duration::weeks(4));
+
+        cookies.add_private(c);
     }
 }
 
@@ -53,21 +63,16 @@ impl<'a, 'r> FromRequest<'a, 'r> for User {
         match user_id {
             Some(user_id) => {
                 let user_id = user_id.value().to_string();
-                let pool = request.guard::<State<Pool>>()?;
-                match pool.get() {
-                    Ok(conn) => {
-                        let user_id = user_id.parse::<i32>().unwrap_or(-1);
+                let conn = request.guard::<DbConn>()?;
+                let user_id = user_id.parse::<i32>().unwrap_or(-1);
 
-                        let db_user = users
-                            .find(user_id)
-                            .first::<User>(&conn);
+                let db_user = users
+                    .find(user_id)
+                    .first::<User>(&*conn);
 
-                        match db_user {
-                            Ok(db_user) => Outcome::Success(db_user),
-                            Err(_) => Outcome::Forward(())
-                        }
-                    },
-                    Err(_) => Outcome::Failure((Status::ServiceUnavailable, ())),
+                match db_user {
+                    Ok(db_user) => Outcome::Success(db_user),
+                    Err(_) => Outcome::Forward(())
                 }
             },
             None => Outcome::Forward(())

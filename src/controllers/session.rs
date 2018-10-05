@@ -14,8 +14,6 @@ use diesel::RunQueryDsl;
 use diesel::ExpressionMethods;
 use diesel::QueryDsl;
 
-use time::Duration;
-
 const BAD_USER : &'static str = "Bad Username or Password";
 
 #[delete("/session")]
@@ -25,7 +23,7 @@ pub fn delete_session(mut cookies: Cookies) -> Result<String, ()> {
 }
 
 #[post("/session", format="application/json", data="<form_user>")]
-pub fn new_session(conn: DbConn, form_user: Json<FormUserJson>, mut cookies: Cookies) -> Result<Json<JsonUser>, NotFound<String>> {
+pub fn new_session(conn: DbConn, form_user: Json<FormUserJson>, cookies: Cookies) -> Result<Json<JsonUser>, NotFound<String>> {
     let Json(form_user) = form_user;
 
     let db_user = users
@@ -38,18 +36,13 @@ pub fn new_session(conn: DbConn, form_user: Json<FormUserJson>, mut cookies: Coo
             let valid = verify(&form_user.password, &db_user.password).unwrap_or(false);
 
             if valid {
+                db_user.set_user_cookie(cookies);
 
-                let mut c = Cookie::new("user_id", format!("{}", db_user.id));
-
-                c.set_max_age(Duration::weeks(4));
-
-                cookies.add_private(c);
-
-                Ok(Json(db_user.toJsonUser()))
+                Ok(Json(db_user.to_json_user()))
             } else {
              Err(NotFound(BAD_USER.to_string()))
             }
         },
-        Err(e) => Err(NotFound(BAD_USER.to_string()))
+        Err(_) => Err(NotFound(BAD_USER.to_string()))
     }
 }
