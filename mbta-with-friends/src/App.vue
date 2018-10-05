@@ -3,7 +3,7 @@
     <md-app md-waterfall md-mode="fixed">
       <md-app-toolbar class="md-primary">
         <div class="md-toolbar-row">
-          <md-tabs class="md-primary">
+          <md-tabs class="md-primary" :md-active-tab="activeTab()">
             <md-tab id="tab-home" md-label="Home" to="/"></md-tab>
             <md-tab id="tab-about" md-label="About" to="/about"></md-tab>
             <md-tab v-if="user == null" id="tab-login" md-label="Login" to="/login"></md-tab>
@@ -30,6 +30,12 @@ export default class App extends Vue {
   @State('user') user: any;
   @Mutation('set_user') setUser: any;
   @Mutation('set_users') setUsers: any;
+
+  private activeTab() {
+    let route = this.$route.path.slice(1);
+    route = route == '' ? 'home' : route;
+    return `tab-${route}`;
+  }
 
   private logout() {
     this.axios
