@@ -2,7 +2,6 @@ import Vapi from 'vuex-rest-api';
 
 const users = new Vapi({
   state: {
-    user: null,
     users: [],
   },
 });

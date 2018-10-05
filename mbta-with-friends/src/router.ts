@@ -1,10 +1,15 @@
 import Vue from 'vue';
+import store from './stores';
+import axios, {AxiosResponse} from 'axios';
 import Router from 'vue-router';
 import Home from './views/Home.vue';
+import About from './views/About.vue';
+import Login from './views/Login.vue';
+import {Config} from './models';
 
 Vue.use(Router);
 
-export default new Router({
+let router = new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
@@ -16,10 +21,25 @@ export default new Router({
     {
       path: '/about',
       name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import(/* webpackChunkName: "about" */ './views/About.vue'),
+      component: About,
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: Login,
     },
   ],
 });
+
+router.beforeEach((to, from, next) => {
+  if ((store as any).state.hasConfig) {
+    next();
+  } else {
+    axios.get('/api/config').then((response: AxiosResponse<Config>) => {
+      store.commit('set_config', response.data);
+      next();
+    });
+  }
+});
+
+export default router;

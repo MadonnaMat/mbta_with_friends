@@ -70,8 +70,12 @@ fn index_extra(file: PathBuf) -> Option<NamedFile> {
 fn routes() -> Vec<rocket::Route> {
     routes![
         controllers::users::all,
+        controllers::users::all_bad,
         controllers::users::new_user,
         controllers::session::new_session,
+        controllers::session::delete_session,
+        controllers::config::config_logged_in,
+        controllers::config::config,
     ]
 }
 

@@ -18,8 +18,14 @@ use time::Duration;
 
 const BAD_USER : &'static str = "Bad Username or Password";
 
+#[delete("/session")]
+pub fn delete_session(mut cookies: Cookies) -> Result<String, ()> {
+    cookies.remove_private(Cookie::named("user_id"));
+    Ok(String::from("Logged Out"))
+}
+
 #[post("/session", format="application/json", data="<form_user>")]
-pub fn new_session(conn: DbConn, form_user: Json<FormUserJson>, mut cookies: Cookies) -> Result<Json<User>, NotFound<String>> {
+pub fn new_session(conn: DbConn, form_user: Json<FormUserJson>, mut cookies: Cookies) -> Result<Json<JsonUser>, NotFound<String>> {
     let Json(form_user) = form_user;
 
     let db_user = users
@@ -39,7 +45,7 @@ pub fn new_session(conn: DbConn, form_user: Json<FormUserJson>, mut cookies: Coo
 
                 cookies.add_private(c);
 
-                Ok(Json(db_user))
+                Ok(Json(db_user.toJsonUser()))
             } else {
              Err(NotFound(BAD_USER.to_string()))
             }
