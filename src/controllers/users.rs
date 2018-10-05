@@ -34,25 +34,26 @@ pub fn new_user(conn: DbConn, new_user: Json<FormUserJson>, cookies: Cookies) ->
 
     let encrypted = hash(&new_user.password[..], DEFAULT_COST);
 
-    if let Ok(encrypted) = encrypted {
-        let new_user = NewUser {
-            username: &new_user.username[..],
-            password: &encrypted[..],
-        };
+    let encrypted = match encrypted {
+        Ok(encrypted) => encrypted,
+        Err(_) => return Err(NotFound("Unknown Error!".to_string()))
+    };
 
-        let usr = diesel::insert_into(users)
-            .values(&new_user)
-            .get_result::<User>(&*conn);
+    let new_user = NewUser {
+        username: &new_user.username[..],
+        password: &encrypted[..],
+    };
 
-        match usr {
-            Ok(usr) => {
-                usr.set_user_cookie(cookies);
+    let usr = diesel::insert_into(users)
+        .values(&new_user)
+        .get_result::<User>(&*conn);
 
-                Ok(Json(usr.to_json_user()))
-            },
-            Err(e) => Err(NotFound(format!("{}", e)))
-        }
-    } else {
-        Err(NotFound("Unknown Error!".to_string()))
+    match usr {
+        Ok(usr) => {
+            usr.set_user_cookie(cookies);
+
+            Ok(Json(usr.to_json_user()))
+        },
+        Err(e) => Err(NotFound(format!("{}", e)))
     }
 }   

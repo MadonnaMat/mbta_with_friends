@@ -59,23 +59,24 @@ impl<'a, 'r> FromRequest<'a, 'r> for User {
 
     fn from_request(request: &'a Request<'r>) -> request::Outcome<User, ()> {
         let mut cookies = request.cookies();
-        let user_id = cookies.get_private("user_id");
-        match user_id {
-            Some(user_id) => {
-                let user_id = user_id.value().to_string();
-                let conn = request.guard::<DbConn>()?;
-                let user_id = user_id.parse::<i32>().unwrap_or(-1);
+        let user_id_cookie = cookies.get_private("user_id");
 
-                let db_user = users
-                    .find(user_id)
-                    .first::<User>(&*conn);
+        let user_id = match user_id_cookie {
+            Some(user_id) => user_id,
+            None => return Outcome::Forward(())
+        };
 
-                match db_user {
-                    Ok(db_user) => Outcome::Success(db_user),
-                    Err(_) => Outcome::Forward(())
-                }
-            },
-            None => Outcome::Forward(())
+        let user_id = user_id.value().to_string();
+        let conn = request.guard::<DbConn>()?;
+        let user_id = user_id.parse::<i32>().unwrap_or(-1);
+
+        let db_user = users
+            .find(user_id)
+            .first::<User>(&*conn);
+
+        match db_user {
+            Ok(db_user) => Outcome::Success(db_user),
+            Err(_) => Outcome::Forward(())
         }
 
     }
