@@ -11,6 +11,7 @@
 
           <md-card-content>
             <p>Id: {{ user.id }}</p>
+            <p>Is Friend: {{user.is_friend}}</p>
           </md-card-content>
         </md-ripple>
       </md-card>
@@ -21,7 +22,7 @@
 <script lang="ts">
 import Component from 'vue-class-component';
 import {Prop, Vue} from 'vue-property-decorator';
-import {NUser, IUser, User} from '@/models/';
+import {NUser, User} from '@/models/';
 import {AxiosResponse} from 'axios';
 import {State, Action} from 'vuex-class';
 

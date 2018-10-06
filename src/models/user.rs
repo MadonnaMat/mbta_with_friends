@@ -11,7 +11,8 @@ use rocket::http::{Cookies, Cookie};
 
 use time::Duration;
 
-#[derive(Queryable, Serialize)]
+#[derive(Queryable, QueryableByName, Serialize)]
+#[table_name="users"]
 pub struct User {
     pub id: i32,
     pub username: String,
@@ -22,6 +23,13 @@ pub struct User {
 pub struct JsonUser {
     pub id: i32,
     pub username: String,
+}
+
+#[derive(Serialize)]
+pub struct JsonFriend {
+    pub id: i32,
+    pub username: String,
+    pub is_friend: bool,
 }
 
 #[derive(Insertable)]
@@ -42,6 +50,14 @@ impl User {
         JsonUser {
             id: self.id,
             username: String::from(&self.username[..])
+        }
+    }
+
+    pub fn to_json_friend(&self, connected_friend_ids: &Vec<i32>) -> JsonFriend {
+        JsonFriend {
+            id: self.id,
+            username: String::from(&self.username[..]),
+            is_friend: connected_friend_ids.contains(&self.id),
         }
     }
 

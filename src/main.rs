@@ -73,6 +73,7 @@ fn routes() -> Vec<rocket::Route> {
         controllers::users::all,
         controllers::users::all_bad,
         controllers::users::new_user,
+        controllers::users::add_friend,
         controllers::session::new_session,
         controllers::session::delete_session,
         controllers::config::config_logged_in,

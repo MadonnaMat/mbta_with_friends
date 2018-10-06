@@ -5,6 +5,7 @@ import Router from 'vue-router';
 import Home from './views/Home.vue';
 import About from './views/About.vue';
 import Login from './views/Login.vue';
+import AddFriend from './views/AddFriend.vue';
 import {Config} from './models';
 
 Vue.use(Router);
@@ -27,6 +28,11 @@ let router = new Router({
       path: '/login',
       name: 'login',
       component: Login,
+    },
+    {
+      path: '/add-friend',
+      name: 'add-friend',
+      component: AddFriend,
     },
   ],
 });
