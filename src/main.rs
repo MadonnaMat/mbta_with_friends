@@ -78,6 +78,7 @@ fn routes() -> Vec<rocket::Route> {
         controllers::session::delete_session,
         controllers::config::config_logged_in,
         controllers::config::config,
+        controllers::routes::all,
     ]
 }
 

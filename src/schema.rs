@@ -26,7 +26,7 @@ table! {
 table! {
     sublines (id) {
         id -> Int4,
-        line_id -> Nullable<Int4>,
+        line_id -> Int4,
         name -> Varchar,
         api_id -> Varchar,
     }

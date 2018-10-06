@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import users from './users';
+import routes from './routes';
 import {Config, User} from '@/models';
 import _ from 'lodash';
 
@@ -25,7 +26,8 @@ let defaults = {
   },
 };
 let users_obj = users as any;
-let store_obj = _.merge(defaults, users_obj);
+let routes_obj = routes as any;
+let store_obj = _.merge(defaults, users_obj, routes_obj);
 
 let store = new Vuex.Store(store_obj);
 

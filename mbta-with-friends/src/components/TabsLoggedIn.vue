@@ -4,7 +4,7 @@
       <div class="md-toolbar-row">
         <md-tabs class="md-primary" :md-active-tab="activeTab">
           <md-tab id="tab-home" md-label="Home" to="/"></md-tab>
-          <md-tab id="tab-about" md-label="About" to="/about"></md-tab>
+          <md-tab id="tab-routes" md-label="Routes" to="/routes"></md-tab>
           <md-tab id="tab-add-friend" md-label="Add Friend" to="/add-friend"></md-tab>
         </md-tabs>
         <md-button id="tab-logout" v-on:click.prevent="logout" >Logout</md-button>

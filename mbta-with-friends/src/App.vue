@@ -9,7 +9,6 @@
       <div class="md-toolbar-row">
         <md-tabs class="md-primary" :md-active-tab="activeTab">
           <md-tab id="tab-home" md-label="Home" to="/"></md-tab>
-          <md-tab id="tab-about" md-label="About" to="/about"></md-tab>
           <md-tab id="tab-login" md-label="Login" to="/login"></md-tab>
         </md-tabs>
       </div>

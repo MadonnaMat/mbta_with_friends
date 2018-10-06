@@ -3,9 +3,9 @@ import store from './stores';
 import axios, {AxiosResponse} from 'axios';
 import Router from 'vue-router';
 import Home from './views/Home.vue';
-import About from './views/About.vue';
 import Login from './views/Login.vue';
 import AddFriend from './views/AddFriend.vue';
+import Routes from './views/Routes.vue';
 import {Config} from './models';
 
 Vue.use(Router);
@@ -20,11 +20,6 @@ let router = new Router({
       component: Home,
     },
     {
-      path: '/about',
-      name: 'about',
-      component: About,
-    },
-    {
       path: '/login',
       name: 'login',
       component: Login,
@@ -33,6 +28,11 @@ let router = new Router({
       path: '/add-friend',
       name: 'add-friend',
       component: AddFriend,
+    },
+    {
+      path: '/routes',
+      name: 'routes',
+      component: Routes,
     },
   ],
 });
