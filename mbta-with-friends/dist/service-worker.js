@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.2/workbox-sw.js");
 
 importScripts(
-  "/precache-manifest.b40f1f387b0447f6db1d9cd3976071a3.js"
+  "/precache-manifest.4a1eeacb1d1af01d996737fd4f4411f5.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "mbta-with-friends"});

@@ -11,11 +11,13 @@ let defaults = {
   state: {
     user: null,
     hasConfig: false,
+    api_key: null,
   },
   mutations: {
     set_config(state: any, config: Config) {
       state.hasConfig = true;
       state.user = config.user;
+      state.api_key = config.api_key;
     },
     set_user(state: any, user: User) {
       state.user = user;
