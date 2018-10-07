@@ -15,6 +15,7 @@ export default routes
     path: '/api/routes',
     onSuccess: (state: any, payload: any) => {
       state.stops = payload.data.map((route: any) => new Stop(route, state));
+      state.lines.__ob__.dep.notify();
     },
   })
   .getStore();
